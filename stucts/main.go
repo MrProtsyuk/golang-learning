@@ -36,17 +36,19 @@ func main() {
 			zipCode: 12345,
 		},
 	}
-	
+
+	//ampersand gives us access to RAM address of the variable
+	// markPointer := &mark
 	mark.updateName("Marky")
 	mark.print()
 }
 
-func (p person) updateName(newFirstName string) {
-	p.firstName = newFirstName
+func (pointerToPerson *person) updateName(newFirstName string) {
+	(*pointerToPerson).firstName = newFirstName
 }
 
 func (p person) print() {
 	// This shows value and variable
-	// can be written with out second argument
-  fmt.Printf("%+v", p)
+	// can be written with or without second argument; fmt.Printf ("%v+", p)
+  fmt.Println(p)
 }
