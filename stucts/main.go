@@ -21,8 +21,8 @@ type person struct {
 // 	mark.firstName = "Mark"
 // 	mark.lastName = "Protsyuk"
 
-// 	fmt.Println(mark)
-// 	fmt.Printf("%+v", mark)
+// this just shows value
+// fmt.Println(mark)
 // }
 
 // syntax here is not standard but it gives more leaniancy with variables
@@ -36,10 +36,17 @@ func main() {
 			zipCode: 12345,
 		},
 	}
+	
+	mark.updateName("Marky")
+	mark.print()
+}
 
+func (p person) updateName(newFirstName string) {
+	p.firstName = newFirstName
+}
+
+func (p person) print() {
 	// This shows value and variable
-	// fmt.Printf("%+v", mark)
-
-	// this just shows value
-	fmt.Println(mark)
+	// can be written with out second argument
+  fmt.Printf("%+v", p)
 }
