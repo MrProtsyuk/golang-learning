@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -17,8 +19,8 @@ type Movie struct{
 }
 
 type Director struct{
-	firstname string `json:"firstname"`
-	lastname string `json:"lastname"`
+	Firstname string `json:"firstname"`
+	Lastname string `json:"lastname"`
 }
 
 var movies []Movie
@@ -27,8 +29,8 @@ func main()  {
 	r := mux.NewRouter()
 
 	// seeding movies in
-	movies = append(movies, Movie{ID: "1", Isbn:"444447", Title: "Movie one", Director : &Director{firstname: "Mark", lastname: "pro"}})
-	movies = append(movies, Movie{ID: "2", Isbn:"444448", Title: "Movie two", Director : &Director{firstname: "Mark", lastname: "pro"}})
+	movies = append(movies, Movie{ID: "1", Isbn:"444447", Title: "Movie one", Director : &Director{Firstname: "Mark", Lastname: "pro"}})
+	movies = append(movies, Movie{ID: "2", Isbn:"444448", Title: "Movie two", Director : &Director{Firstname: "Mark", Lastname: "pro"}})
 
 	r.HandleFunc("/movies", getMovies).Methods("GET")
 	r.HandleFunc("/movies{id}", getMovie).Methods("GET")
@@ -45,18 +47,51 @@ func getMovies(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(movies)
 }
 
-func getMovie() {
-
+func getMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for _, item := range movies {
+		if item.ID == params["id"] {
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+	}
 }
 
-func createMovie() {
-
+func createMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var movie Movie
+	_ = json.NewDecoder(r.Body).Decode(&movie)
+	movie.ID = strconv.Itoa(rand.Intn(1000000000))
+	movies = append(movies, movie)
+	json.NewEncoder(w).Encode(movie)
 }
 
-func updateMovie() {
-
+// not the proper way to update an item but we can get away with it here because we are not using a database
+func updateMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for index, item := range movies {
+		if item.ID == params["id"]{
+			movies = append(movies[:index], movies[index+1:]...)
+			var movie Movie
+			_ = json.NewDecoder(r.Body).Decode(&movie)
+			movie.ID = params["id"]
+			movies = append(movies, movie)
+			json.NewEncoder(w).Encode(movie)
+			return
+		}
+	}
 }
 
-func deleteMovie() {
-
+func deleteMovie(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for index, item := range movies {
+		if item.ID == params["id"]{
+			movies = append(movies[:index], movies[index+1:]...)
+			break
+		}
+	}
+	json.NewEncoder(w).Encode(movies)
 }
